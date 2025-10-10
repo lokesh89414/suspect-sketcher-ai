@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, FileText, ListChecks } from "lucide-react";
 import { toast } from "sonner";
-import { ManualSelector } from "@/components/ManualSelector";
+import { ManualFeatureSelector } from "@/components/ManualFeatureSelector";
 
 const Generate = () => {
   const [activeTab, setActiveTab] = useState("description");
@@ -30,10 +30,44 @@ const Generate = () => {
     }, 2000);
   };
 
-  const handleManualGenerate = async (promptSnippets: string[]) => {
+  const handleManualGenerate = async (data: Record<string, any>) => {
     setIsLoading(true);
     
-    const fullPrompt = promptSnippets.join(", ");
+    // Build prompt from form data
+    const promptParts: string[] = [];
+    
+    if (data.gender) promptParts.push(`${data.gender} person`);
+    if (data.age) promptParts.push(`approximately ${data.age} years old`);
+    if (data.region) promptParts.push(data.region.replace(/_/g, " "));
+    if (data.skinTone) promptParts.push(`${data.skinTone.replace(/_/g, " ")} skin tone`);
+    if (data.faceShape) promptParts.push(`${data.faceShape} face shape`);
+    if (data.jawline) promptParts.push(`${data.jawline} jawline`);
+    if (data.chin) promptParts.push(`${data.chin} chin`);
+    if (data.forehead) promptParts.push(`${data.forehead} forehead`);
+    if (data.hairLength && data.hairLength !== "bald") {
+      promptParts.push(`${data.hairLength.replace(/_/g, " ")} hair`);
+      if (data.hairColor) promptParts.push(`${data.hairColor.replace(/_/g, " ")} hair color`);
+      if (data.hairTexture) promptParts.push(`${data.hairTexture} hair texture`);
+      if (data.hairline) promptParts.push(`${data.hairline.replace(/_/g, " ")} hairline`);
+    } else if (data.hairLength === "bald") {
+      promptParts.push("bald head");
+    }
+    if (data.beard && data.beard !== "none") promptParts.push(`${data.beard} beard`);
+    if (data.beardStyle) promptParts.push(`${data.beardStyle.replace(/_/g, " ")} beard style`);
+    if (data.moustache && data.moustache !== "none") promptParts.push(`${data.moustache} moustache`);
+    if (data.sideburns && data.sideburns !== "none") promptParts.push(`${data.sideburns} sideburns`);
+    if (data.eyeShape) promptParts.push(`${data.eyeShape.replace(/_/g, " ")} eyes`);
+    if (data.eyeSize) promptParts.push(`${data.eyeSize} eyes`);
+    if (data.eyeColor) promptParts.push(`${data.eyeColor} eye color`);
+    if (data.eyebrows) promptParts.push(`${data.eyebrows} eyebrows`);
+    if (data.noseShape) promptParts.push(`${data.noseShape} nose`);
+    if (data.noseSize) promptParts.push(`${data.noseSize} nose`);
+    if (data.nostrils) promptParts.push(`${data.nostrils} nostrils`);
+    if (data.lipThickness) promptParts.push(`${data.lipThickness} lips`);
+    if (data.expression) promptParts.push(`${data.expression} expression`);
+    if (data.distinguishingMarks) promptParts.push(`distinguishing marks: ${data.distinguishingMarks}`);
+    
+    const fullPrompt = promptParts.join(", ");
     console.log("Generated prompt:", fullPrompt);
     
     // Simulate API call - replace with actual Stable Diffusion API
@@ -112,7 +146,7 @@ const Generate = () => {
               </TabsContent>
 
               <TabsContent value="manual" className="mt-0">
-                <ManualSelector onGenerate={handleManualGenerate} isLoading={isLoading} />
+                <ManualFeatureSelector onGenerate={handleManualGenerate} isLoading={isLoading} />
               </TabsContent>
             </div>
 
