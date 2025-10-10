@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, FileText, ListChecks } from "lucide-react";
 import { toast } from "sonner";
-import { ManualFeatureSelector } from "@/components/ManualFeatureSelector";
+import { ManualSelector } from "@/components/ManualSelector";
 
 const Generate = () => {
   const [activeTab, setActiveTab] = useState("description");
@@ -30,23 +30,10 @@ const Generate = () => {
     }, 2000);
   };
 
-  const handleManualGenerate = async (features: any) => {
+  const handleManualGenerate = async (promptSnippets: string[]) => {
     setIsLoading(true);
     
-    // Build prompt from features
-    const promptParts: string[] = [];
-    
-    if (features.gender) promptParts.push(`${features.gender} person`);
-    if (features.age) promptParts.push(`approximately ${features.age} years old`);
-    if (features.skinTone) promptParts.push(`${features.skinTone} skin tone`);
-    if (features.faceShape) promptParts.push(`${features.faceShape} face shape`);
-    if (features.hairColor) promptParts.push(`${features.hairColor} hair`);
-    if (features.hairLength) promptParts.push(`${features.hairLength} hair`);
-    if (features.eyeColor) promptParts.push(`${features.eyeColor} eyes`);
-    if (features.beard && features.beard !== 'none') promptParts.push(`${features.beard} beard`);
-    if (features.moustache && features.moustache !== 'none') promptParts.push(`${features.moustache} moustache`);
-    
-    const fullPrompt = promptParts.join(", ");
+    const fullPrompt = promptSnippets.join(", ");
     console.log("Generated prompt:", fullPrompt);
     
     // Simulate API call - replace with actual Stable Diffusion API
@@ -88,40 +75,48 @@ const Generate = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="description" className="mt-0">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Enter Description</CardTitle>
-                  <CardDescription>
-                    Describe the suspect's appearance in detail
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Textarea
-                    placeholder="E.g., Male, approximately 30 years old, short dark hair, brown eyes, oval face shape, light beard..."
-                    className="min-h-[200px] resize-none"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                  <Button
-                    onClick={handleDescriptionGenerate}
-                    disabled={isLoading}
-                    className="w-full"
-                    size="lg"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      "Generate Image"
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <TabsContent value="description" className="mt-0">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Enter Description</CardTitle>
+                    <CardDescription>
+                      Describe the suspect's appearance in detail
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Textarea
+                      placeholder="E.g., Male, approximately 30 years old, short dark hair, brown eyes, oval face shape, light beard..."
+                      className="min-h-[200px] resize-none"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
+                    <Button
+                      onClick={handleDescriptionGenerate}
+                      disabled={isLoading}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        "Generate Image"
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
+              <TabsContent value="manual" className="mt-0">
+                <ManualSelector onGenerate={handleManualGenerate} isLoading={isLoading} />
+              </TabsContent>
+            </div>
+
+            <div>
               <Card className="sticky top-20">
                 <CardHeader>
                   <CardTitle>Generated Image</CardTitle>
@@ -159,16 +154,7 @@ const Generate = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-
-          <TabsContent value="manual" className="mt-0">
-            <ManualFeatureSelector 
-              onGenerate={handleManualGenerate} 
-              isLoading={isLoading}
-              generatedImage={generatedImage}
-              onDownload={handleDownload}
-            />
-          </TabsContent>
+          </div>
         </Tabs>
       </div>
     </div>
